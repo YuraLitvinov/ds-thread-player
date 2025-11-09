@@ -1,0 +1,26 @@
+FROM rust:slim
+
+WORKDIR /app
+COPY . .
+
+RUN apt-get update && apt-get install -y \
+    libasound2 \
+    libopus0 \
+    libssl3 \
+    zlib1g \
+    python3 \
+    curl \
+    libssl-dev \
+    pkg-config \
+    libasound2-dev \
+    cmake \
+    libc6 \
+    binutils \
+    dh-autoreconf \
+    mingw-w64
+
+RUN rustup target add x86_64-pc-windows-gnu
+RUN cargo build --release --target x86_64-pc-windows-gnu
+
+ENTRYPOINT ["ds_thread_player"]
+
