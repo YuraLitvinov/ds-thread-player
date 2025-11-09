@@ -23,7 +23,7 @@ jobs:
         run: |
           chmod +x build.sh 
           ./build.sh
-          chmox +x build_win.sh
+          chmod +x build_win.sh
           ./build_win.sh
       - name: Publish release
         uses: actions/upload-artifact@v4
