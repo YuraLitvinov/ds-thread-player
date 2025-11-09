@@ -1,0 +1,37 @@
+name: Build release and publish
+
+on: 
+  push:
+    branches: [master]
+
+jobs:
+  release-dog:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.head_ref }}
+          fetch-depth: 1
+      - name: Debug status
+        run: ls
+      - name: Extract version from Cargo.toml
+        run: echo VERSION=$(grep '^version' crates/patchdog/Cargo.toml | head -n 1 | cut -d '"' -f2) >> $GITHUB_ENV
+      - name: Run shell script with build
+        run: |
+          chmod +x build.sh 
+          ./build.sh
+        run: | 
+          chmox +x build_win.sh
+          ./build_win.sh
+      - name: Publish release
+        uses: actions/upload-artifact@v4
+        with:
+          name: Patchdog release
+          path: build/patchdog-linux-x86_64
+      - name: Create GitHub release
+        run: gh release create v${VERSION}-beta ./build/ds_thread_player-linux-x86_64 ./build/ds_thread_player-win-x86_64.exe --title "Release v${VERSION}beta"  --notes "First public release"
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
